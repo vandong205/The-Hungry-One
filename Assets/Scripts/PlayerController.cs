@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using DG.Tweening;
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour,IObjectRecevier
 {
     #region Properties
     [Header("Reference")]
@@ -186,8 +186,11 @@ public class PlayerController : MonoBehaviour
             }
         }else if(interactable is ObjectDispencer dispencer)
         {
-            ReceiveObject(dispencer);            
-        }else interactable.Interact("Player");
+            dispencer.Dispense(this);            
+        }else {
+            interactable.Interact(holdingItem==null?"":holdingItem.ID);
+            if(holdingItem!=null) Debug.Log("Truyền tương tác với ID:"+holdingItem.ID);
+        }
     }
     private void HandleDrop(InputAction.CallbackContext context)
     {
@@ -213,17 +216,7 @@ public class PlayerController : MonoBehaviour
             holdingItem.transform;
 
         item.SetParent(null);
-
-        if (item.TryGetComponent<Rigidbody>(out var rb))
-        {
-            rb.isKinematic = false;
-            rb.detectCollisions = true;
-
-        }
-           
-         rb.linearVelocity = Vector3.zero;
-
-        rb.angularVelocity = Vector3.zero;
+       
         Vector3 throwDirection =
          _playerCamera.transform.forward;
 
@@ -232,25 +225,46 @@ public class PlayerController : MonoBehaviour
         throwDirection.Normalize();
 
         throwDirection += Vector3.up * 0.2f;
-
-        rb.AddForce(
+        
+        if (item.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.isKinematic = false;
+            rb.detectCollisions = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+             rb.AddForce(
             throwDirection.normalized * 2f,
             ForceMode.Impulse
         );
+        }
+           
+       
 
         holdingItem = null;
     }
     public void ReceiveObject(ObjectDispencer dispencer)
     {
-        ObjectData data  = dispencer.objectData;
+        
+    }
+    public void ClearObjectInHand()
+    {
+        if(holdingItem==null) return;
+        Destroy(holdingItem.gameObject);
+        holdingItem = null;
+    }
+
+    public void Receive(Transform spawnPoint, ObjectData data)
+    {
+        if(data==null) return;
+        Debug.Log("Player nhận object: "+data.Name);
         if(holdingItem!=null)
         {
             if(holdingItem.ID==data.id) return;
-            else DropItem();
+            else ClearObjectInHand();
         }
         GameObject obj = Instantiate(
-            dispencer.objectData.prefab,
-            dispencer.spawnPoint.position,
+            data.prefab,
+            spawnPoint.position,
             Quaternion.identity);
         Vector3 endPos = _handSlot.TransformPoint(data.InHandPos);
 

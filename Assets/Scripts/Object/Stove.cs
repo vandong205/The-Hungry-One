@@ -1,11 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Stove : MonoBehaviour
 {
 
-    [SerializeField] float cookTime = 10.0f;
     [SerializeField] Renderer render;
     [SerializeField] ToggleButton toggleButton;
+    [SerializeField] List<StoveCookSurface> cookSurfaces;
     private bool isTurnOn = false;
     void Start()
     {
@@ -24,6 +25,14 @@ public class Stove : MonoBehaviour
             render.material.SetColor("_EmissionColor", Color.black);
         }
         isTurnOn=isOn;
+        SetSurfaceState();
+    }
+    private void SetSurfaceState()
+    {
+        foreach(StoveCookSurface cookSurface in cookSurfaces)
+        {
+            cookSurface.isOn = isTurnOn;
+        }
     }
     
 }
