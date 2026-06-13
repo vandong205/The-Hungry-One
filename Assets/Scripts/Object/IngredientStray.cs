@@ -7,7 +7,7 @@ public class IngredientStray : MonoBehaviour,IInteractableObject
     [SerializeField] IngredientData data;
     private string id;
     public string ID { get => id; set => id=value; }
-    public void Interact(string sender)
+    public void Interact(ObjectData sender)
     {
         OnStrayPicked?.Invoke(data.ID,transform,data.Prefab);
     }

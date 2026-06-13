@@ -8,4 +8,5 @@ public class ObjectData : ScriptableObject
     public Vector3 InHandPos;
     public Vector3 InHandRot;
     public string Name;
+    public float ScaleMultiplier = 1f;
 }

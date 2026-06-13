@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e99b20bf702bfd848b333535bf56e5a0, type: 3}
-  m_Name: DoughMass
+  m_Name: UncookPizza
   m_EditorClassIdentifier: Assembly-CSharp::ObjectData
-  prefab: {fileID: 3716930760665217632, guid: 173070a4bf44aae42be03c66366650ce, type: 3}
-  id: 2
-  InHandPos: {x: 0.59, y: 0.35, z: -0.5}
-  InHandRot: {x: 0, y: 0, z: 0}
-  Name: "B\u1ED9t b\xE1nh"
-  ScaleMultiplier: 0.7
+  prefab: {fileID: 5074328075495603186, guid: 9302046cfbdaccf48b03c2e17d3bcefd, type: 3}
+  id: 8
+  InHandPos: {x: 0.664, y: 0.506, z: -0.294}
+  InHandRot: {x: 54.62001, y: 102.30002, z: 270.00003}
+  Name: "B\xE1nh pizza"
+  ScaleMultiplier: 0.5

@@ -5,7 +5,7 @@ public class PizzaBoxStack : ObjectDispencer, IInteractableObject
     [SerializeField] string id;
     public string ID { get => id; set => id=value; }
 
-    public void Interact(string sender)
+    public override void Interact(ObjectData sender)
     {
         // Dispense();
     }

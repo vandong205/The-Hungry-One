@@ -3,15 +3,14 @@ using UnityEngine;
 
 public class PickupableObject : MonoBehaviour, IInteractableObject
 {
-   [SerializeField] string id;
-    public string  ID { get => id; set => id=value; }
-
-    public void Interact(string sender)
+    public ObjectData data;
+    public void Init(ObjectData data)
     {
-        
+        this.data = data;
     }
-    public void Init(string id)
+
+    public virtual void Interact(ObjectData sender)
     {
-        this.id = id;
+        // throw new NotImplementedException();
     }
 }

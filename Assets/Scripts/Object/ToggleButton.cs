@@ -8,7 +8,7 @@ public class ToggleButton : MonoBehaviour,IInteractableObject
     private string id;
     public string ID { get => id; set => id=value; }
 
-    public void Interact(string sender)
+    public void Interact(ObjectData sender)
     {
         isTurnOn=!isTurnOn;
         OnChangeValue?.Invoke(isTurnOn);

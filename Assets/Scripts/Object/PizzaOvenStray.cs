@@ -1,22 +1,24 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
-public class PizzaOvenStray : MonoBehaviour,IInteractableObject
+public class PizzaOvenStray : ObjectDispencer,IInteractableObject
 {
     private static readonly int IsOpenHash = Animator.StringToHash("IsOpen");
     public Action OnCookDone;
-    public Action OnTakeCakeOut;
     [SerializeField] Animator animator;
     [SerializeField] ToggleButton toggleButton;
     [SerializeField] float bakeTime = 10.0f;
     [SerializeField] Renderer btnRender;
-    
+    [SerializeField] GameObject cookedPizza;
+    [SerializeField] ObjectData acceptableFood;
     [SerializeField] string id;
     public string  ID { get => id; set => id=value; }
     private float remainTime;
     private bool isFree = true;
     private bool isOpened = false;
     private bool isCooking = false;
+    private bool hasCookedFood = false;
+    private GameObject cookingFood=null;
 
     void Awake()
     {
@@ -25,6 +27,7 @@ public class PizzaOvenStray : MonoBehaviour,IInteractableObject
         toggleButton.OnChangeValue+=HandleToggleMachine;
         btnRender.material.EnableKeyword("_EMISSION");
         btnRender.material.SetColor("_EmissionColor", Color.black);
+        cookedPizza.SetActive(false);
 
     }
     void Update()
@@ -46,13 +49,10 @@ public class PizzaOvenStray : MonoBehaviour,IInteractableObject
     private void OnCookFinished()
     {
         OnCookDone?.Invoke();
+        hasCookedFood = true;
         btnRender.material.SetColor("_EmissionColor", Color.green);
-    }
-    private void OnTakePizzaOut()
-    {
-        OnTakeCakeOut?.Invoke();
-        isFree = true;
-        remainTime = bakeTime;
+        Destroy(cookingFood);
+        cookedPizza.SetActive(true);
     }
     private void HandleToggleDoor()
     {
@@ -73,15 +73,41 @@ public class PizzaOvenStray : MonoBehaviour,IInteractableObject
             isCooking = false;
         }
     }
-    public void Interact(string sender)
+    private void PlacePizzaIn(GameObject pizza)
     {
-        if (isFree)
+        cookingFood = Instantiate(pizza);
+        cookingFood.transform.SetParent(transform);
+        cookingFood.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+    }
+    public override void Interact(ObjectData sender)
+    {
+        
+    }
+    public override void Dispense(IObjectRecevier recevier)
+    {
+        if(isCooking) return;
+        if (isOpened)
         {
-            HandleToggleDoor();
+            if (hasCookedFood)
+            {
+                Debug.Log("Lấy đồ ăn");
+                cookedPizza.SetActive(false);
+                recevier.Receive(spawnPoint,objectData);
+                hasCookedFood = false;
+            }
+            else
+            {
+                PickupableObject pickupable  = VDGlobal.Instance.PlayerController.GetItemInHand();
+                if (pickupable != null)
+                {
+                    if (pickupable.data.id == acceptableFood.id)
+                    {
+                        PlacePizzaIn(pickupable.gameObject);
+                        VDGlobal.Instance.PlayerController.ClearObjectInHand();
+                    }
+                }
+            }
         }
-        else
-        {
-            
-        }
+        HandleToggleDoor();
     }
 }

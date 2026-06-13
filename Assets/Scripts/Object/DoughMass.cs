@@ -1,18 +1,6 @@
 using UnityEngine;
 
-public class DoughMass : ObjectDispencer,IInteractableObject
+public class DoughMass : PickupableObject,IInteractableObject
 {
-    private string id;
-    public string ID { get => id; set => id=value; }
-
-    public override void Dispense(IObjectRecevier recevier)
-    {
-        gameObject.SetActive(false);
-        recevier.Receive(spawnPoint,objectData);
-    }
-
-    public void Interact(string sender)
-    {
-        // throw new System.NotImplementedException();
-    }
+    public string ID { get => data.id; set => data.id=value; }
 }

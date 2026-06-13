@@ -46,8 +46,9 @@ public class StoveCookSurface : MonoBehaviour, IInteractableObject
         }
     }
 
-    public void Interact(string sender)
+    public void Interact(ObjectData sender)
     {
+        if(sender==null) return;
         // Bếp đang bận
         if (isBusy)
             return;
@@ -57,7 +58,7 @@ public class StoveCookSurface : MonoBehaviour, IInteractableObject
         }
         for (int i = 0; i < requireds.Count; i++)
         {
-            if (sender == requireds[i].id)
+            if (sender.id == requireds[i].id)
             {
                 isMakingIndex = i;
                 VDGlobal.Instance.PlayerController.ClearObjectInHand();

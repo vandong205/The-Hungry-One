@@ -10,7 +10,7 @@ public class RawIngredientStray : ObjectDispencer,IInteractableObject
         recevier.Receive(spawnPoint,objectData);
     }
 
-    public void Interact(string sender)
+    public override void Interact(ObjectData sender)
     {
         // throw new System.NotImplementedException();
     }

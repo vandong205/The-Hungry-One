@@ -8,7 +8,6 @@ public class PowderMixer : MonoBehaviour,IInteractableObject
     [SerializeField] Renderer btnRender;
     [SerializeField] GameObject doughMixed;
     [SerializeField] ParticleSystem MakingPartical;
-
     [SerializeField] float makeTime = 10.0f;
     [SerializeField] ObjectData required;
     private float makeTimeLeft;
@@ -29,6 +28,7 @@ public class PowderMixer : MonoBehaviour,IInteractableObject
     }
     void Update()
     {
+
         if (isMaking)
         {
             makeTimeLeft-=Time.deltaTime;
@@ -59,12 +59,12 @@ public class PowderMixer : MonoBehaviour,IInteractableObject
     private void StartMachine()
     {
         isMaking = true;
-        toggleButton.Interact("");
+        toggleButton.Interact(null);
     }
     private void StopMachine()
     {
         isMaking = false;
-        toggleButton.Interact("");
+        toggleButton.Interact(null);
     }
     private void OnMakingDone()
     {
@@ -76,9 +76,10 @@ public class PowderMixer : MonoBehaviour,IInteractableObject
         btnRender.material.SetColor("_EmissionColor", Color.green);
     }
 
-    public void Interact(string sender)
+    public void Interact(ObjectData sender)
     {
-        if (sender == required.id)
+        if(sender==null) return;
+        if (sender.id == required.id)
         {
             hasPowder = true;
             VDGlobal.Instance.PlayerController.ClearObjectInHand();

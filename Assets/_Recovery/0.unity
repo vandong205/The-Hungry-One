@@ -2695,6 +2695,7 @@ MonoBehaviour:
   btnRender: {fileID: 643280001}
   doughMixed: {fileID: 1799229623}
   MakingPartical: {fileID: 1790970408}
+  acceptable: {fileID: 0}
   makeTime: 10
   required: {fileID: 11400000, guid: 5dd1ba97ef9c8494298490e6954b8861, type: 2}
   id: 
@@ -6178,7 +6179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   required: {fileID: 11400000, guid: 39560c71142a7594d85649656d0c2b3e, type: 2}
   dough: {fileID: 3469287837406831250}
-  doughPressedData: {fileID: 11400000, guid: d960ecd9d96c6f34fba5af0d22ec4dfb, type: 2}
+  dougPressedData: {fileID: 11400000, guid: d960ecd9d96c6f34fba5af0d22ec4dfb, type: 2}
   hasDough: 0
 --- !u!1 &1163460550 stripped
 GameObject:
@@ -7640,7 +7641,6 @@ GameObject:
   - component: {fileID: 1620802049}
   - component: {fileID: 1620802048}
   - component: {fileID: 1620802047}
-  - component: {fileID: 1620802052}
   m_Layer: 0
   m_Name: PizzaWithTopping
   m_TagString: Untagged
@@ -7730,6 +7730,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91273aef993c7004fb37a05b731c11c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoughPressed
+  spawnPoint: {fileID: 0}
+  objectData: {fileID: 0}
   CheeseTopping: {fileID: 537516601}
   BasilTopping: {fileID: 1600621925}
   PineAppleTopping: {fileID: 1581375725}
@@ -7796,19 +7798,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1620802045}
   m_Mesh: {fileID: -6952579110835604278, guid: a3f68dd76f0f2fc498274c5bc49fe693, type: 3}
---- !u!114 &1620802052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1620802045}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b88a37020f6d5af498f5818b1ad2425d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectSelfCloneDispencer
-  data: {fileID: 0}
 --- !u!1 &1631594537
 GameObject:
   m_ObjectHideFlags: 0
@@ -13606,13 +13595,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1a12b3906856a674ba2abf0863f987c6, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1799229626}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1a12b3906856a674ba2abf0863f987c6, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1799229627}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1a12b3906856a674ba2abf0863f987c6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1799229630}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1a12b3906856a674ba2abf0863f987c6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1799229631}
   m_SourcePrefab: {fileID: 100100000, guid: 1a12b3906856a674ba2abf0863f987c6, type: 3}
 --- !u!4 &1799229622 stripped
 Transform:
@@ -13624,6 +13610,20 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1a12b3906856a674ba2abf0863f987c6, type: 3}
   m_PrefabInstance: {fileID: 1799229621}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1799229626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799229623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5abd861ee88d34fbead0a6cb75a20a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  spawnPoint: {fileID: 1799229622}
+  objectData: {fileID: 11400000, guid: 39560c71142a7594d85649656d0c2b3e, type: 2}
 --- !u!65 &1799229627
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -13645,46 +13645,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.5930552, y: 1.165937, z: 2.5598817}
   m_Center: {x: 0.028656006, y: 0.0310162, z: -0.06001097}
---- !u!114 &1799229630
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1799229623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b88a37020f6d5af498f5818b1ad2425d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectSelfCloneDispencer
-  data: {fileID: 11400000, guid: 39560c71142a7594d85649656d0c2b3e, type: 2}
---- !u!54 &1799229631
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1799229623}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &1814363095
 GameObject:
   m_ObjectHideFlags: 0
@@ -14768,8 +14728,6 @@ GameObject:
   - component: {fileID: 1711813855826892379}
   - component: {fileID: 3469287837406831250}
   - component: {fileID: 3469287837406831251}
-  - component: {fileID: 3469287837406831252}
-  - component: {fileID: 3469287837406831253}
   m_Layer: 3
   m_Name: PizzaWithTopping
   m_TagString: Untagged
@@ -15157,6 +15115,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91273aef993c7004fb37a05b731c11c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoughPressed
+  spawnPoint: {fileID: 543450653489933620}
+  objectData: {fileID: 11400000, guid: d960ecd9d96c6f34fba5af0d22ec4dfb, type: 2}
   CheeseTopping: {fileID: 1871684750}
   BasilTopping: {fileID: 6103751883289825826}
   PineAppleTopping: {fileID: 2839707035029194125}
@@ -15189,46 +15149,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 112.224724, y: 118.00005, z: 5.932186}
   m_Center: {x: 0.0009765625, y: 1.7827995e-14, z: -0.15680152}
---- !u!54 &3469287837406831252
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149230663566}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &3469287837406831253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149230663566}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b88a37020f6d5af498f5818b1ad2425d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectSelfCloneDispencer
-  data: {fileID: 11400000, guid: d960ecd9d96c6f34fba5af0d22ec4dfb, type: 2}
 --- !u!33 &3469287837712812466
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.Android.Gradle.Manifest;
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour,IObjectRecevier
+public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneReceiver
 {
     #region Properties
     [Header("Reference")]
@@ -29,6 +30,15 @@ public class PlayerController : MonoBehaviour,IObjectRecevier
     private float verticalVelocity;
     private bool isGrounded;
     private PickupableObject holdingItem;
+    
+    public PickupableObject HoldingItem {get=>holdingItem;private set {
+        if(holdingItem==value) return; 
+        holdingItem=value;
+        if(holdingItem==null) Debug.Log("Player đã bỏ đồ vật đang cầm");
+        else Debug.Log("Player đang cầm "+holdingItem.data.name+" với ID: "+holdingItem.data.id);
+
+        }
+    }
 
     #endregion
 
@@ -136,9 +146,23 @@ public class PlayerController : MonoBehaviour,IObjectRecevier
                     .WasPerformedThisFrame()
             )
             {
-                Debug.Log("Hành động tương tác được thực hiện");
-                if (hit.collider.TryGetComponent<IInteractableObject>(out var interactable))
+                if (hit.collider.TryGetComponent<PickupableObject>(out var pickup))
                 {
+                    Debug.Log("Tương tác với: PickupableObject");
+                    HandleInteract(pickup);
+                }
+                else if (hit.collider.TryGetComponent<ObjectDispencer>(out var dispencer))
+                {
+                    Debug.Log("Tương tác với: ObjectDispencer");
+                    HandleInteract(dispencer);
+                }
+                else if(hit.collider.TryGetComponent<ObjectSelfCloneDispencer>(out var clonedispencer)){
+                    Debug.Log("Tương tác với: ObjectSelfCloneDispencer");
+                    HandleInteract(clonedispencer);
+                }
+                else if (hit.collider.TryGetComponent<IInteractableObject>(out var interactable))
+                {
+                    Debug.Log("Tương tác với: IInteractableObject");
                     HandleInteract(interactable);
                 }
             }
@@ -152,61 +176,52 @@ public class PlayerController : MonoBehaviour,IObjectRecevier
     {
         if (interactable == null)
             return;
+        Debug.Log("Truyền tương tác từ "+holdingItem+" tới "+interactable);
+        interactable.Interact(holdingItem==null?null:holdingItem.data);
         if (interactable is PickupableObject pickupable)
         {
-            Debug.Log(pickupable.ID);
-            MonoBehaviour behaviour =
-                interactable as MonoBehaviour;
-            if (behaviour != null)
+            DropItem();
+            ObjectData data = pickupable.data;
+            if (data != null)
             {
-                Debug.Log(GameDB.Instance);
-
-                ObjectData data =
-                    GameDB.Instance.GetObjectInfo(
-                        pickupable.ID
-                    );
-                if (data != null)
-                {
-                    if(holdingItem!=null) DropItem();
-                    HoldItem(
-                        data.InHandPos,
-                        data.InHandRot,
-                        behaviour.transform,
-                        pickupable
-                    );
-                }
-                else
-                {
-                    List<ObjectData> datas  = GameDB.Instance.GetAllObjectInfo();
-                    foreach(ObjectData data1 in datas)
-                        {
-                            Debug.Log(data1.id);
-                        }
-                }
+                HoldItem(
+                    data,
+                    pickupable
+                );
+            }
+            else
+            {
+                List<ObjectData> datas  = GameDB.Instance.GetAllObjectInfo();
+                foreach(ObjectData data1 in datas)
+                    {
+                        Debug.Log(data1.id);
+                    }
             }
         }else if(interactable is ObjectDispencer dispencer)
         {
+            Debug.Log("Yêu cầu phát object từ ObjectDispencer "+dispencer.name);
             dispencer.Dispense(this);            
-        }else {
-            interactable.Interact(holdingItem==null?"":holdingItem.ID);
-            if(holdingItem!=null) Debug.Log("Truyền tương tác với ID:"+holdingItem.ID);
+        }else if (interactable is ObjectSelfCloneDispencer cloneDispencers)
+        {
+            Debug.Log("Yêu cầu phát object từ ObjectSelfCloneDispencer "+cloneDispencers.name);
+            cloneDispencers.Dispense(this);
         }
     }
     private void HandleDrop(InputAction.CallbackContext context)
     {
         DropItem();
     }
-    public void HoldItem(Vector3 pos,Vector3 rot,Transform item,PickupableObject data)
+    public void HoldItem(ObjectData data,PickupableObject item)
     {
         if(data==null) return;
-        holdingItem = data;
+        HoldingItem = item;
         if (item.TryGetComponent<Rigidbody>(out var rb))
         {
             rb.isKinematic = true;
             rb.detectCollisions = false;
         }
-        item.SetParent(_handSlot);
-        item.SetLocalPositionAndRotation(pos,Quaternion.Euler(rot));
+        item.transform.SetParent(_handSlot);
+        item.transform.SetLocalPositionAndRotation(data.InHandPos,Quaternion.Euler(data.InHandRot));
     }
     public void DropItem()
     {
@@ -237,20 +252,19 @@ public class PlayerController : MonoBehaviour,IObjectRecevier
             ForceMode.Impulse
         );
         }
-           
-       
+        Collider[] cols = holdingItem.GetComponentsInChildren<Collider>();
+        foreach(var col in cols)
+        {
+            col.enabled = true;
+        }
 
-        holdingItem = null;
-    }
-    public void ReceiveObject(ObjectDispencer dispencer)
-    {
-        
+        HoldingItem = null;
     }
     public void ClearObjectInHand()
     {
         if(holdingItem==null) return;
         Destroy(holdingItem.gameObject);
-        holdingItem = null;
+        HoldingItem = null;
     }
 
     public void Receive(Transform spawnPoint, ObjectData data)
@@ -259,39 +273,48 @@ public class PlayerController : MonoBehaviour,IObjectRecevier
         Debug.Log("Player nhận object: "+data.Name);
         if(holdingItem!=null)
         {
-            if(holdingItem.ID==data.id) return;
+            if(holdingItem.data.id==data.id) return;
             else ClearObjectInHand();
         }
-        GameObject obj = Instantiate(
-            data.prefab,
-            spawnPoint.position,
-            Quaternion.identity);
-        Vector3 endPos = _handSlot.TransformPoint(data.InHandPos);
-
-        Quaternion endRot =_handSlot.rotation *
-        Quaternion.Euler(data.InHandRot);
-        Sequence seq = DOTween.Sequence();
-        seq.Join(
-            obj.transform.DOMove(endPos, 0.4f)
-        );
-
-        seq.Join(
-            obj.transform.DORotateQuaternion(endRot, 0.4f)
-        );
-
-        seq.OnComplete(() =>
+        GameObject obj = Instantiate(data.prefab);
+            obj.transform.position = spawnPoint.position;
+        obj.transform.localScale*=data.ScaleMultiplier;
+        if (obj.TryGetComponent<Rigidbody>(out var rb))
         {
-            PickupableObject pickable = obj.AddComponent<PickupableObject>();
-            pickable.Init(data.id);
+            rb.isKinematic = true;
+        }
+        Collider[] cols = obj.GetComponentsInChildren<Collider>();
+        foreach(var col in cols)
+        {
+            col.enabled = false;
+        }
+        obj.transform.SetParent(_handSlot, true);
+        obj.transform.DOLocalMove(data.InHandPos, 0.4f);
+        obj.transform.DOLocalRotate(data.InHandRot, 0.4f)
+            .OnComplete(() =>
+            {
+                PickupableObject pickable = obj.AddComponent<PickupableObject>();
+                pickable.Init(data);
+                HoldingItem = pickable;
+            });
+    }
+    public PickupableObject GetItemInHand()
+    {
+        return holdingItem;
+    }
 
-            holdingItem = pickable;
-
-            obj.transform.SetParent(_handSlot, true);
-
-            // Đảm bảo local transform đúng tuyệt đối
-            obj.transform.localPosition = data.InHandPos;
-            obj.transform.localEulerAngles = data.InHandRot;
-        });
+    public void Receive(ObjectData data,GameObject sender)
+    {
+        GameObject clone = Instantiate(sender);
+        Destroy(clone.GetComponent<ObjectSelfCloneDispencer>());
+        clone.transform.localScale*=data.ScaleMultiplier;
+        if (!clone.TryGetComponent<PickupableObject>(out var pickupable))
+        {
+            pickupable = clone.AddComponent<PickupableObject>();
+            pickupable.Init(data);
+        }
+        HoldingItem = pickupable;
+        HoldItem(data,pickupable);
     }
     #endregion
 }

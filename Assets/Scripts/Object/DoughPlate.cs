@@ -1,19 +1,19 @@
+using System.Collections.Generic;
 using UnityEngine;
-
 public class DoughPlate : MonoBehaviour,IInteractableObject
 {
-    [SerializeField] GameObject doughPressed;
     [SerializeField] ObjectData required;
     [SerializeField] DoughPressed dough;
+    [SerializeField] ObjectData doughPressedData;
     private string id;
     public string ID { get => id; set => id=value; }
     public bool hasDough = false;
-    public void Interact(string sender)
+    public void Interact(ObjectData sender)
     {
-        if(hasDough) return;
-        if (sender == required.id)
+        if(sender==null) return;
+        if (sender.id == required.id||sender.id == doughPressedData.id)
         {
-            doughPressed.SetActive(true);
+            dough.gameObject.SetActive(true);
             VDGlobal.Instance.PlayerController.ClearObjectInHand();
             hasDough = true;
         }
@@ -21,11 +21,19 @@ public class DoughPlate : MonoBehaviour,IInteractableObject
 
     void Awake()
     {
-        doughPressed.SetActive(false);
+        dough.gameObject.SetActive(false);
+        dough.OnTakeDough+=OnTakeDough;
     }
     public void ReceiveIngredient(IngredientID ingredient)
     {
         if(!hasDough) return;
         dough.ReceiveIngredient(ingredient);
+    }
+    private void OnTakeDough()
+    {
+        if(!hasDough) return;
+        Debug.Log("Đã lấy bánh khỏi thớt");
+        hasDough = false;
+        dough.gameObject.SetActive(false);
     }
 }

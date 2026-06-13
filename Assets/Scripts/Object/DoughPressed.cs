@@ -1,7 +1,11 @@
+using System;
+using System.Collections.Generic;
+using UnityEditor.XR;
 using UnityEngine;
-
-public class DoughPressed : MonoBehaviour
+public class DoughPressed : MonoBehaviour,IInteractableObject
 {
+
+    public Action OnTakeDough;
     [SerializeField] GameObject CheeseTopping;
     [SerializeField] GameObject BasilTopping;
     [SerializeField] GameObject PineAppleTopping;
@@ -9,7 +13,25 @@ public class DoughPressed : MonoBehaviour
     [SerializeField] GameObject MushroomTopping;
     [SerializeField] GameObject HamTopping;
     [SerializeField] GameObject PepperoniTopping;
-
+    [SerializeField] List<ObjectData> acceptable=new();
+    [SerializeField] List<IngredientID> acceptableId = new();
+    private ObjectSelfCloneDispencer selfCloneDispencer;
+    void OnEnable()
+    {
+        if(gameObject.TryGetComponent(out ObjectSelfCloneDispencer objectSelfClone))
+        {
+            selfCloneDispencer = objectSelfClone;
+            objectSelfClone.AfterClone += HandleTakeDough;
+        }
+            
+    }
+    void OnDisable()
+    {
+        if (selfCloneDispencer != null)
+        {
+            selfCloneDispencer.AfterClone -= HandleTakeDough;
+        }
+    }
     public void ReceiveIngredient(IngredientID ingredientID)
     {
         switch (ingredientID)
@@ -43,7 +65,6 @@ public class DoughPressed : MonoBehaviour
                 break;
         }
     }
-
     public void ClearIngredients()
     {
         CheeseTopping.SetActive(false);
@@ -54,4 +75,14 @@ public class DoughPressed : MonoBehaviour
         HamTopping.SetActive(false);
         PepperoniTopping.SetActive(false);
     }
+    public void Interact(ObjectData sender)
+    {
+        HandleTakeDough();
+    }
+    private void HandleTakeDough()
+    {
+        Debug.Log("Thực hiện lấy bánh khỏi thớt");
+        OnTakeDough?.Invoke();
+    }
+
 }
