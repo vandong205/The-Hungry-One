@@ -10,9 +10,13 @@ public class DoughPlate : MonoBehaviour,IInteractableObject
     public bool hasDough = false;
     public void Interact(ObjectData sender)
     {
-        if(sender==null) return;
+        if(sender==null||hasDough) return;
         if (sender.id == required.id||sender.id == doughPressedData.id)
         {
+            if (sender.id == required.id)
+            {
+                dough.ClearIngredients();
+            }
             dough.gameObject.SetActive(true);
             VDGlobal.Instance.PlayerController.ClearObjectInHand();
             hasDough = true;

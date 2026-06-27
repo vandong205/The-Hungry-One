@@ -78,7 +78,7 @@ public class PowderMixer : MonoBehaviour,IInteractableObject
 
     public void Interact(ObjectData sender)
     {
-        if(sender==null) return;
+        if(sender==null||hasPowder) return;
         if (sender.id == required.id)
         {
             hasPowder = true;

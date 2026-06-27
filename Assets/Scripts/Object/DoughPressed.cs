@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.XR;
 using UnityEngine;
 public class DoughPressed : MonoBehaviour,IInteractableObject
 {
@@ -13,8 +12,8 @@ public class DoughPressed : MonoBehaviour,IInteractableObject
     [SerializeField] GameObject MushroomTopping;
     [SerializeField] GameObject HamTopping;
     [SerializeField] GameObject PepperoniTopping;
-    [SerializeField] List<ObjectData> acceptable=new();
-    [SerializeField] List<IngredientID> acceptableId = new();
+    [SerializeField] List<ObjectData> acceptables=new();
+    [SerializeField] List<IngredientID> acceptableIds=new();
     private ObjectSelfCloneDispencer selfCloneDispencer;
     void OnEnable()
     {
@@ -22,6 +21,7 @@ public class DoughPressed : MonoBehaviour,IInteractableObject
         {
             selfCloneDispencer = objectSelfClone;
             objectSelfClone.AfterClone += HandleTakeDough;
+            objectSelfClone.OnInteract +=HandleAddIngredientFromPlayer;
         }
             
     }
@@ -84,5 +84,19 @@ public class DoughPressed : MonoBehaviour,IInteractableObject
         Debug.Log("Thực hiện lấy bánh khỏi thớt");
         OnTakeDough?.Invoke();
     }
-
+    private void HandleAddIngredientFromPlayer(ObjectData sender)
+    {
+        if(sender==null) return;
+        //nếu là đặt nguyên liệu vào
+        for(int i = 0; i < acceptables.Count; i++)
+        {
+            if (acceptables[i].id == sender.id)
+            {
+                ReceiveIngredient(acceptableIds[i]);
+                VDGlobal.Instance.PlayerController.ClearObjectInHand();
+                selfCloneDispencer.DisableNextExcute = true;
+                return;
+            }
+        }
+    }
 }

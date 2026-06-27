@@ -8,11 +8,7 @@ public class StoveCookSurface : MonoBehaviour, IInteractableObject
 
     [SerializeField] float cookTime = 10f;
 
-    [Header("Cook Done Bounce")]
-    [SerializeField] float bounceUpForce = 3f;
-    [SerializeField] float bounceRandomForce = 1f;
-
-    private bool isBusy=false;
+    private bool hasUnCookFood=false;
     public bool isOn=false;
     private bool hasCookedFood=false;
 
@@ -37,8 +33,9 @@ public class StoveCookSurface : MonoBehaviour, IInteractableObject
 
     void Update()
     {
-        if (!isBusy||!isOn)
+        if (!isOn||!hasUnCookFood)
             return;
+        Debug.Log("Đang nấu bếp "+gameObject.name);
         remainTime -= Time.deltaTime;
         if (remainTime <= 0)
         {
@@ -48,14 +45,14 @@ public class StoveCookSurface : MonoBehaviour, IInteractableObject
 
     public void Interact(ObjectData sender)
     {
-        if(sender==null) return;
         // Bếp đang bận
-        if (isBusy)
+        if (hasUnCookFood)
             return;
         if(hasCookedFood) {
             GiveFood(VDGlobal.Instance.PlayerController);
             return;
         }
+        if(sender==null) return;
         for (int i = 0; i < requireds.Count; i++)
         {
             if (sender.id == requireds[i].id)
@@ -74,40 +71,41 @@ public class StoveCookSurface : MonoBehaviour, IInteractableObject
             requireds[isMakingIndex].prefab,
             transform.position,
             transform.rotation);
-
-        isBusy = true;
+        hasUnCookFood = true;
         remainTime = cookTime;
     }
 
     private void OnCookDone()
     {
-        isBusy = false;
         hasCookedFood = true;
+        hasUnCookFood = false;
         remainTime = cookTime;
-
         if (currentFood != null)
         {
             Destroy(currentFood);
         }
-
         currentFood = Instantiate(
             results[isMakingIndex].prefab,
             transform.position,
             transform.rotation);
     }
 
-    public void TakeFood()
+    public void RemoveCookedFood()
     {
         if (!hasCookedFood)
             return;
-        Destroy(currentFood);
+        if (currentFood != null)
+        {
+            Destroy(currentFood);
+        }
         currentFood = null;
         hasCookedFood = false;
     }
 
     public void GiveFood(IObjectRecevier recevier)
     {
-        TakeFood();
+        RemoveCookedFood();
+        if(isMakingIndex<0) return;
         recevier.Receive(transform,results[isMakingIndex]);
         isMakingIndex = -1;
     }

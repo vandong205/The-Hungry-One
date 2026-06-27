@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using DG.Tweening;
-using Unity.Android.Gradle.Manifest;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneReceiver
 {
@@ -274,7 +273,7 @@ public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneRe
         if(holdingItem!=null)
         {
             if(holdingItem.data.id==data.id) return;
-            else ClearObjectInHand();
+            DropItem();
         }
         GameObject obj = Instantiate(data.prefab);
             obj.transform.position = spawnPoint.position;
@@ -295,7 +294,7 @@ public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneRe
             {
                 PickupableObject pickable = obj.AddComponent<PickupableObject>();
                 pickable.Init(data);
-                HoldingItem = pickable;
+                HoldItem(data,pickable);
             });
     }
     public PickupableObject GetItemInHand()

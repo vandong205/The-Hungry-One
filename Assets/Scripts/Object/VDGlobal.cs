@@ -51,4 +51,16 @@ public class VDGlobal : MonoBehaviour
     {
         mouseInput.action.Enable();
     }
+    public void DisableAllAction()
+    {
+        DisableInteractAction();
+        DisableMouse();
+        DisableMoveAction();
+    }
+    public void EnableAllAction()
+    {
+        EnableMoveAction();
+        EnableMouse();
+        EnableInteractAction();
+    }
 }

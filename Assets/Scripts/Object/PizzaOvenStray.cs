@@ -13,11 +13,12 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
     [SerializeField] ObjectData acceptableFood;
     [SerializeField] string id;
     public string  ID { get => id; set => id=value; }
+    private bool isMachineOn = false;
     private float remainTime;
-    private bool isFree = true;
     private bool isOpened = false;
-    private bool isCooking = false;
+    private bool CanCook => HasUncookedFood&&isMachineOn;
     private bool hasCookedFood = false;
+    private bool HasUncookedFood =>cookingFood!=null;
     private GameObject cookingFood=null;
 
     void Awake()
@@ -32,7 +33,7 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
     }
     void Update()
     {
-        if (isCooking)
+        if (CanCook)
         {
             UpdateCookTime();
         }
@@ -42,17 +43,18 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
         remainTime-=Time.deltaTime;
         if (remainTime <= 0)
         {
-            isCooking = false;
             OnCookFinished();
         }
     }
     private void OnCookFinished()
     {
         OnCookDone?.Invoke();
-        hasCookedFood = true;
         btnRender.material.SetColor("_EmissionColor", Color.green);
         Destroy(cookingFood);
+        cookingFood = null;
+        remainTime=bakeTime;
         cookedPizza.SetActive(true);
+        hasCookedFood = true;
     }
     private void HandleToggleDoor()
     {
@@ -64,14 +66,14 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
         Debug.Log("Toggle Oven");
         if (isOn)
         {
-            btnRender.material.SetColor("_EmissionColor", Color.red);
-            isCooking = true;
+            if(hasCookedFood) btnRender.material.SetColor("_EmissionColor", Color.green);
+            else btnRender.material.SetColor("_EmissionColor", Color.red);
         }
         else
         {
             btnRender.material.SetColor("_EmissionColor", Color.black);
-            isCooking = false;
         }
+        isMachineOn = isOn;
     }
     private void PlacePizzaIn(GameObject pizza)
     {
@@ -85,7 +87,7 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
     }
     public override void Dispense(IObjectRecevier recevier)
     {
-        if(isCooking) return;
+        if(CanCook) return;
         if (isOpened)
         {
             if (hasCookedFood)
@@ -94,20 +96,33 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
                 cookedPizza.SetActive(false);
                 recevier.Receive(spawnPoint,objectData);
                 hasCookedFood = false;
+                btnRender.material.SetColor(
+                "_EmissionColor",
+                isMachineOn ? Color.red : Color.black
+            );
             }
             else
             {
-                PickupableObject pickupable  = VDGlobal.Instance.PlayerController.GetItemInHand();
-                if (pickupable != null)
+                if (!(hasCookedFood || HasUncookedFood))
                 {
-                    if (pickupable.data.id == acceptableFood.id)
+                    PickupableObject pickupable  = VDGlobal.Instance.PlayerController.GetItemInHand();
+                    if (pickupable != null)
                     {
-                        PlacePizzaIn(pickupable.gameObject);
-                        VDGlobal.Instance.PlayerController.ClearObjectInHand();
+                        if (pickupable.data.id == acceptableFood.id)
+                        {
+                            PlacePizzaIn(pickupable.gameObject);
+                            VDGlobal.Instance.PlayerController.ClearObjectInHand();
+                        }
                     }
                 }
+               
             }
         }
         HandleToggleDoor();
+    }
+    private void OnDestroy()
+    {
+        if(toggleButton!=null)
+            toggleButton.OnChangeValue -= HandleToggleMachine;
     }
 }
