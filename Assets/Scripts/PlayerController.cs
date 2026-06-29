@@ -49,12 +49,14 @@ public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneRe
     }
     private void OnEnable()
     {
+        moveInput = Vector2.zero;
         _moveAction.action.performed += StoreMovementInput;
         _moveAction.action.canceled += StoreMovementInput;
         _dropAction.action.performed += HandleDrop;
     }
     private void OnDisable()
     {
+        moveInput = Vector2.zero;
         _moveAction.action.performed -= StoreMovementInput;
         _moveAction.action.canceled -= StoreMovementInput;
         _dropAction.action.performed -= HandleDrop;

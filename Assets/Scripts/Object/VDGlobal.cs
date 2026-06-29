@@ -7,7 +7,7 @@ public class VDGlobal : MonoBehaviour
     [SerializeField] InputActionReference _moveInput;
     [SerializeField] InputActionReference _interactInput;
     [SerializeField] InputActionReference mouseInput;
-    [SerializeField] CinemachineBrain cinemachineBrain;
+    [SerializeField] CameraController cameraController;
     [SerializeField] PlayerController playerController;
     private static VDGlobal _instance;
     public static VDGlobal Instance=>_instance;
@@ -41,7 +41,7 @@ public class VDGlobal : MonoBehaviour
     }
     public void SetCameraBlend(CinemachineBlendDefinition.Styles blendMode,float duration)
     {
-        cinemachineBrain.DefaultBlend = new CinemachineBlendDefinition(blendMode,duration);
+        cameraController.SetBlend(blendMode,duration);
     }
     public void DisableMouse()
     {

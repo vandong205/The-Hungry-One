@@ -12,9 +12,19 @@ public class GlobalEffect : MonoBehaviour
 
     private ColorAdjustments colorAdjustments;
     private Tween exposureTween;
-
+      private static GlobalEffect _instance;
+    public static GlobalEffect Instance=>_instance;
     private void Awake()
     {
+          if (_instance != null)
+        {
+            Destroy(_instance.gameObject);
+        }
+        else
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         if (volume == null)
             volume = FindFirstObjectByType<Volume>();
 
@@ -31,7 +41,7 @@ public class GlobalEffect : MonoBehaviour
     {
         if (colorAdjustments == null)
             return;
-
+        Debug.Log("Da chay effect fadein");
         exposureTween?.Kill();
 
         colorAdjustments.postExposure.value = darkExposure;
@@ -50,11 +60,11 @@ public class GlobalEffect : MonoBehaviour
     /// <summary>
     /// Fade từ sáng sang tối.
     /// </summary>
-    public void FadeOut(float duration)
+    public void FadeOut(float duration=1,Action callback=null)
     {
         if (colorAdjustments == null)
             return;
-
+        Debug.Log("Da chay effect fadeout");
         exposureTween?.Kill();
 
         colorAdjustments.postExposure.value = brightExposure;
@@ -64,6 +74,7 @@ public class GlobalEffect : MonoBehaviour
             x => colorAdjustments.postExposure.value = x,
             darkExposure,
             duration
-        );
+        ).OnComplete(()=>
+        callback?.Invoke());
     }
 }

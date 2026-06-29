@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-   [SerializeField] GlobalEffect effect;
    [SerializeField] GameDirector gameDirector;
-
     void OnEnable()
     {
         GameEventHandler.OnEventReceive+=HandleGameEvent;
@@ -12,7 +10,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         VDGlobal.Instance.DisableAllAction();
-        effect.FadeIn(callback:()=>{
+        GlobalEffect.Instance.FadeIn(2f,()=>{
             VDGlobal.Instance.EnableAllAction();
             GameEventHandler.RaiseEvent(GameEvent.PlayerEnter);
         });
