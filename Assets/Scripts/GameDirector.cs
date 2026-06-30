@@ -1,18 +1,30 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
 public class GameDirector : MonoBehaviour
 {
-
+    [SerializeField] NPCManager nPCManager;
     private static WaitForSeconds _waitForSeconds3 = new(3f);
     [SerializeField] Phone phone;
     [SerializeField] DialogBox dialogBox;
+    void Awake()
+    {
+
+    }
     public void DoEvent(GameEvent gameEvent)
     {
         switch (gameEvent)
         {
-            case GameEvent.PlayerEnter:
+            case GameEvent.PlayerEnterGame:
                 PlayerEnterGameplayer();
+                return;
+            case GameEvent.PlayerTurnOnTheLight:
+                nPCManager.SpawnNPC(
+                    NPCChar.ShopOwner,
+                    VDGlobal.Instance.CameraController.transform.position - VDGlobal.Instance.CameraController.transform.forward*0.9f,
+                    VDGlobal.Instance.CameraController.transform.rotation
+                );
                 return;
             default:
                 return;

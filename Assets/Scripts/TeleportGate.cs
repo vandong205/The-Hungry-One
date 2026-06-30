@@ -18,7 +18,7 @@ public class TeleportGate : MonoBehaviour
                 StartCoroutine(TeleportSequence(() =>
                 {
                     GlobalEffect.Instance.FadeIn();
-                
+                    
                 }));
             });
         }

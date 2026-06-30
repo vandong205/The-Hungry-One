@@ -12,6 +12,7 @@ public class VDGlobal : MonoBehaviour
     private static VDGlobal _instance;
     public static VDGlobal Instance=>_instance;
     public PlayerController PlayerController=>playerController;
+    public CameraController CameraController=>cameraController;
     void Awake()
     {
         if (_instance != null)

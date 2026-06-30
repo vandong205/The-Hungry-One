@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
-public enum NPCType
-{
-    
-}
 [Serializable]
 public enum NPCChar
 {
-    
+    ShopOwner
 }
 public class NPCManager : MonoBehaviour
 {
@@ -29,14 +26,19 @@ public class NPCManager : MonoBehaviour
         }
     }
     private List<NPCController> NPCs=new();
-    public void SpawnNPC(NPCChar npcChar)
+    public void SpawnNPC(NPCChar npcChar,Vector3 pos, Quaternion rot)
     {
             GameObject npc = Instantiate(_npcLookUp[npcChar]);
             if (npc.TryGetComponent<NPCController>(out var controller))
             {
+                Debug.Log("Đang set pos cho NPC");
                 NPCs.Add(controller);
-                controller.MoveAlongPath(goToShopPaths[chosenInPath]);
-                chosenInPath=chosenInPath+1>=goToShopPaths.Count?0:chosenInPath+1;
-            }       
+                Vector3 targetPos = new(pos.x,controller.groundY,pos.z);
+                Vector3 euler = rot.eulerAngles;
+                euler.x=0;
+                euler.z=0;
+                Quaternion targetRot = Quaternion.Euler(euler);
+                npc.transform.SetPositionAndRotation(targetPos, targetRot);
+        }       
     }
 }

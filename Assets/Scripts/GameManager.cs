@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
         VDGlobal.Instance.DisableAllAction();
         GlobalEffect.Instance.FadeIn(2f,()=>{
             VDGlobal.Instance.EnableAllAction();
-            GameEventHandler.RaiseEvent(GameEvent.PlayerEnter);
+            GameEventHandler.RaiseEvent(GameEvent.PlayerEnterGame);
         });
     }
     void HandleGameEvent(GameEvent gameEvent)

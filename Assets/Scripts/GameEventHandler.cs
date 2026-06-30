@@ -2,7 +2,8 @@ using System;
 using UnityEngine;
 public enum GameEvent
 {
-    PlayerEnter,
+    PlayerEnterGame,
+    PlayerTurnOnTheLight
 }
 public static class GameEventHandler
 {

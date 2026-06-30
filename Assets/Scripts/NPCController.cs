@@ -9,6 +9,7 @@ public class NPCController : MonoBehaviour
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
     [SerializeField] SplineAnimate splineAnimate;
+    public float groundY;
     private Animator animator;
     private bool isMoving = false;
     void Awake()
