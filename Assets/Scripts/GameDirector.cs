@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
 public class GameDirector : MonoBehaviour
 {
@@ -8,10 +8,7 @@ public class GameDirector : MonoBehaviour
     private static WaitForSeconds _waitForSeconds3 = new(3f);
     [SerializeField] Phone phone;
     [SerializeField] DialogBox dialogBox;
-    void Awake()
-    {
 
-    }
     public void DoEvent(GameEvent gameEvent)
     {
         switch (gameEvent)
@@ -20,20 +17,44 @@ public class GameDirector : MonoBehaviour
                 PlayerEnterGameplayer();
                 return;
             case GameEvent.PlayerTurnOnTheLight:
+                VDGlobal.Instance.CameraController.SetBlend(Unity.Cinemachine.CinemachineBlendDefinition.Styles.EaseIn,0.5f);
                 nPCManager.SpawnNPC(
                     NPCChar.ShopOwner,
                     VDGlobal.Instance.CameraController.transform.position - VDGlobal.Instance.CameraController.transform.forward*0.9f,
-                    VDGlobal.Instance.CameraController.transform.rotation
+                    VDGlobal.Instance.CameraController.transform.rotation,
+                    NPCRole.Owner
                 );
+                return;
+            case GameEvent.PlayerEnterShop:
+                PlayerEnterShop();
+                return;
+            case GameEvent.PlayerTalkToShopOwner:
+                VDGlobal.Instance.DisableMoveAction();
+                VDGlobal.Instance.DisableInteractAction();
+                dialogBox.StartDialog(new[]
+                {
+                    new DialogLine("Quản lý","Cậu là ai sao lạ ở đây?"),
+                    new DialogLine("","Tôi là người mới"),
+                }, () =>{
+                    GlobalEffect.Instance.FadeOut(callback:() =>
+                    {
+                        VDGlobal.Instance.EnableAllAction();
+                        nPCManager.DestroyNPC(NPCChar.ShopOwner);
+                        nPCManager.RemoveNPCInnDict(NPCChar.ShopOwner);
+                        GlobalEffect.Instance.FadeIn();
+                        nPCManager.SpawnCustumerNPC();
+                    });
+                });
                 return;
             default:
                 return;
         }        
     }
-    public void PlayerEnterGameplayer()
+    void PlayerEnterGameplayer()
     {
         StartCoroutine(PlayerEnterGameplayerCoroutine());
     }
+
     IEnumerator PlayerEnterGameplayerCoroutine()
     {
         yield return _waitForSeconds3;
@@ -46,5 +67,19 @@ public class GameDirector : MonoBehaviour
             new DialogLine("", "Vâng, em hiểu rồi.")
         },
         phone.PutAway);
+    }
+    void PlayerEnterShop()
+    {
+        StartCoroutine(PlayerEnterShopCoroutine());
+    }
+    
+    IEnumerator PlayerEnterShopCoroutine()
+    {
+        yield return new WaitForSeconds(1);
+        dialogBox.StartDialog(new[]
+        {
+            new DialogLine("", "Quán tối quá, lẽ nào quản lý chưa tới"),
+            new DialogLine("", "Mình cần bật đèn lên trước đã ..."),
+        });
     }
 }

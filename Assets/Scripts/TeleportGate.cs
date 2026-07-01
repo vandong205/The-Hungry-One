@@ -5,6 +5,7 @@ using Unity.Cinemachine;
 
 public class TeleportGate : MonoBehaviour
 {
+    [SerializeField] GameEvent gameEvent;
     [SerializeField] Transform targetPos;
     private bool isPlayer = false;
     private GameObject _currentEntity;    
@@ -18,7 +19,8 @@ public class TeleportGate : MonoBehaviour
                 StartCoroutine(TeleportSequence(() =>
                 {
                     GlobalEffect.Instance.FadeIn();
-                    
+                    GameEventHandler.RaiseEvent(gameEvent);
+                    Destroy(gameObject);
                 }));
             });
         }
@@ -63,7 +65,7 @@ public class TeleportGate : MonoBehaviour
             Debug.Log("Là player");
             isPlayer = true;
         }
-        _currentEntity = other.gameObject;
-        Teleport();
+         _currentEntity = other.gameObject;
+            Teleport();
     }
 }

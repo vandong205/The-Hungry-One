@@ -1,12 +1,24 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.MPE;
 using UnityEngine;
 using UnityEngine.Splines;
 [Serializable]
 public enum NPCChar
 {
-    ShopOwner
+    ShopOwner,
+    RandomMale1,
+    RandomMale2
+    
+}
+public enum NPCRole
+{
+    Owner,
+    TakeAway,
+    Custumer
 }
 public class NPCManager : MonoBehaviour
 {
@@ -16,29 +28,129 @@ public class NPCManager : MonoBehaviour
     [SerializeField] List<SplineContainer> goToShopPaths;
     [SerializeField] List<SplineContainer> goOutShopPaths;
     private Dictionary<NPCChar,GameObject> _npcLookUp = new();
-    private int chosenInPath = 0;
-    private int chosenOutPath = 0;
+    private Coroutine spawnNPCCouroutine;
+    private bool hasTakeAwayCustumer = false;
+    private int currentCustumerNumber=0;
+    private int totalSeat = 0;
     void Awake()
     {
         for (int i = 0; i < NPCprefabs.Count; i++)
         {
             _npcLookUp.Add(chars[i],NPCprefabs[i]);
         }
+        foreach(Table table in Tables)
+        {
+            totalSeat=table.GetTotalSeatNumber();
+        }
     }
-    private List<NPCController> NPCs=new();
-    public void SpawnNPC(NPCChar npcChar,Vector3 pos, Quaternion rot)
+    private Dictionary<NPCChar,NPCController> NPCs=new();
+    public void SpawnNPC(NPCChar npcChar,Vector3 pos, Quaternion rot,NPCRole role)
     {
-            GameObject npc = Instantiate(_npcLookUp[npcChar]);
-            if (npc.TryGetComponent<NPCController>(out var controller))
-            {
-                Debug.Log("Đang set pos cho NPC");
-                NPCs.Add(controller);
-                Vector3 targetPos = new(pos.x,controller.groundY,pos.z);
-                Vector3 euler = rot.eulerAngles;
-                euler.x=0;
-                euler.z=0;
-                Quaternion targetRot = Quaternion.Euler(euler);
-                npc.transform.SetPositionAndRotation(targetPos, targetRot);
-        }       
+        GameObject npc = Instantiate(_npcLookUp[npcChar]);
+        if (npc.TryGetComponent<NPCController>(out var controller))
+        {
+            if(NPCs.ContainsKey(npcChar)) NPCs.Remove(npcChar);
+            Debug.Log("Đang set pos cho NPC");
+            controller.OnMoveToShopDone+=OnNPCMoveToShop;
+            controller.role = role;
+            NPCs.Add(npcChar,controller);
+            Vector3 targetPos = new(pos.x,controller.groundY,pos.z);
+            Vector3 euler = rot.eulerAngles;
+            euler.x=0;
+            euler.z=0;
+            Quaternion targetRot = Quaternion.Euler(euler);
+            npc.transform.SetPositionAndRotation(targetPos, targetRot);
+        }
+        else
+        {
+            Debug.LogWarning("Thêm 1 NPC không có controller");
+        }
+    }
+    public void SpawnCustumerNPC()
+    {
+        if(currentCustumerNumber>=totalSeat) return;
+        int randomChar = UnityEngine.Random.Range(0, _npcLookUp.Count);
+        int randomPath = UnityEngine.Random.Range(0, goToShopPaths.Count);
+
+        Debug.Log($"Spawn NPC: Character {randomChar + 1}, Path {randomPath + 1}");
+
+        Vector3 startLocal = goToShopPaths[randomPath].EvaluatePosition(0f);
+        Vector3 startPosWorld = goToShopPaths[randomPath].transform.TransformPoint(startLocal);
+
+        SpawnNPC(_npcLookUp.ElementAt(randomChar).Key, startPosWorld, Quaternion.identity,NPCRole.Custumer);
+        currentCustumerNumber++;
+        if (NPCs.TryGetValue(_npcLookUp.ElementAt(randomChar).Key, out NPCController controller))
+        {
+            controller.MoveAlongPath(goToShopPaths[randomPath]);
+        }
+    }
+    public void SpawnTakeAwayNPC()
+    {
+        hasTakeAwayCustumer = true;
+    }
+    private void OnNPCMoveToShop(NPCController npc)
+    {
+        if (npc.role == NPCRole.Custumer)
+        {
+            PutCustumerOnTable(npc);
+        }else if (npc.role == NPCRole.TakeAway)
+        {
+            
+        }
+    }
+    private void PutCustumerOnTable(NPCController controller)
+    {
+        if(totalSeat==0) return;
+        TableSeat availableSeat = null;
+        foreach(Table table in Tables)
+        {
+            availableSeat = table.GetSeat();
+            if(availableSeat!=null) break;
+        }
+        if(availableSeat==null)
+        {
+            Debug.Log("No more available seat");
+        }else
+        {
+            controller.Sit(availableSeat.transform);
+            totalSeat--;
+        }
+       
+    }
+
+    public NPCController GetNPC(NPCChar nPCChar)
+    {
+        if(NPCs.TryGetValue(nPCChar,out NPCController result))
+        {
+            return result;
+        }
+        return null;
+    }
+    public void DestroyNPC(NPCChar nPCChar)
+    {
+        if(NPCs.TryGetValue(nPCChar,out NPCController result))
+        {
+            Destroy(result.gameObject);
+            NPCs.Remove(nPCChar);
+        }
+    }
+    public void RemoveNPCInnDict(NPCChar nPCChar)
+    {
+        if(_npcLookUp.ContainsKey(nPCChar))
+        {
+            _npcLookUp.Remove(nPCChar);
+        }
+    }
+    public void SpawnNPCRoutine()
+    {
+        spawnNPCCouroutine = StartCoroutine(SpawnNPCCouroutine());
+    }
+    IEnumerator SpawnNPCCouroutine()
+    {
+        yield return null;
+    }
+    public void StopSpawnNPCRoutine()
+    {
+        StopCoroutine(spawnNPCCouroutine);
     }
 }

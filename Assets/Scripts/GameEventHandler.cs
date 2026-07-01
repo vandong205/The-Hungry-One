@@ -2,8 +2,11 @@ using System;
 using UnityEngine;
 public enum GameEvent
 {
+    None,
     PlayerEnterGame,
-    PlayerTurnOnTheLight
+    PlayerEnterShop,
+    PlayerTurnOnTheLight,
+    PlayerTalkToShopOwner
 }
 public static class GameEventHandler
 {

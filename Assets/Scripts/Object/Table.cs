@@ -12,5 +12,9 @@ public class Table : MonoBehaviour
         }
         return null;
     }
+    public int GetTotalSeatNumber()
+    {
+        return seats.Count;
+    }
 
 }
