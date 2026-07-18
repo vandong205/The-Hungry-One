@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 public class PizzaOvenStray : ObjectDispencer,IInteractableObject
@@ -20,7 +21,7 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
     private bool hasCookedFood = false;
     private bool HasUncookedFood =>cookingFood!=null;
     private GameObject cookingFood=null;
-
+    private DoughPressed inputPizza = null;
     void Awake()
     {
         remainTime=bakeTime;
@@ -29,7 +30,6 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
         btnRender.material.EnableKeyword("_EMISSION");
         btnRender.material.SetColor("_EmissionColor", Color.black);
         cookedPizza.SetActive(false);
-
     }
     void Update()
     {
@@ -94,7 +94,14 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
             {
                 Debug.Log("Lấy đồ ăn");
                 cookedPizza.SetActive(false);
-                recevier.Receive(spawnPoint,objectData);
+                PizzaType pizzaType = GameDB.Instance.GameDatabase.PizzaDatabase.GetPizzaTypeByIngredients(inputPizza.GetAllIngredient().ToArray());
+                PizzaData pizzaData = GameDB.Instance.GameDatabase.PizzaDatabase.GetPizzaData(pizzaType);
+                if (pizzaData != null)
+                {
+                    Debug.Log("Người chơi lấy pizza loại: "+pizzaType);
+                     recevier.Receive(spawnPoint,pizzaData.objectData);
+                }
+                else recevier.Receive(spawnPoint,objectData);
                 hasCookedFood = false;
                 btnRender.material.SetColor(
                 "_EmissionColor",
@@ -105,11 +112,23 @@ public class PizzaOvenStray : ObjectDispencer,IInteractableObject
             {
                 if (!(hasCookedFood || HasUncookedFood))
                 {
-                    PickupableObject pickupable  = VDGlobal.Instance.PlayerController.GetItemInHand();
+                    PickupableObject pickupable  = VDGlobal.Instance.PlayerController.HoldingItem;
                     if (pickupable != null)
                     {
                         if (pickupable.data.id == acceptableFood.id)
                         {
+                            inputPizza = pickupable.GetComponent<DoughPressed>();
+                            if (inputPizza != null)
+                            {
+                                List<IngredientID> ingredientIDs = inputPizza.GetAllIngredient();
+                                Debug.Log("Player đang nướng pizza với các nguyên liệu: ");
+                                foreach (var item in ingredientIDs)
+                                {
+                                    Debug.Log(item);
+                                }
+                                PizzaType pizzaType = GameDB.Instance.GameDatabase.PizzaDatabase.GetPizzaTypeByIngredients(inputPizza.GetAllIngredient().ToArray());
+                                Debug.Log("Người chơi đang nướng pizza "+pizzaType);
+                            } 
                             PlacePizzaIn(pickupable.gameObject);
                             VDGlobal.Instance.PlayerController.ClearObjectInHand();
                         }

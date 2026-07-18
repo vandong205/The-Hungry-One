@@ -206,6 +206,9 @@ public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneRe
         {
             Debug.Log("Yêu cầu phát object từ ObjectSelfCloneDispencer "+cloneDispencers.name);
             cloneDispencers.Dispense(this);
+        }else if(interactable is IObjectRecevier recevier)
+        {
+            recevier.Receive(null,holdingItem==null?null:holdingItem.data);
         }
     }
     private void HandleDrop(InputAction.CallbackContext context)
@@ -299,14 +302,19 @@ public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneRe
                 HoldItem(data,pickable);
             });
     }
-    public PickupableObject GetItemInHand()
-    {
-        return holdingItem;
-    }
 
     public void Receive(ObjectData data,GameObject sender)
     {
         GameObject clone = Instantiate(sender);
+        if (clone.TryGetComponent<DoughPressed>(out var inputPizza))
+        {
+            List<IngredientID> ingredientIDs = inputPizza.GetAllIngredient();
+            Debug.Log("Kiểm tra nguyên liệu trong bánh khi nhận: ");
+            foreach (var item in ingredientIDs)
+            {
+                Debug.Log(item);
+            }
+        }
         Destroy(clone.GetComponent<ObjectSelfCloneDispencer>());
         clone.transform.localScale*=data.ScaleMultiplier;
         if (!clone.TryGetComponent<PickupableObject>(out var pickupable))
@@ -314,7 +322,6 @@ public class PlayerController : MonoBehaviour,IObjectRecevier,IObjectSelfCloneRe
             pickupable = clone.AddComponent<PickupableObject>();
             pickupable.Init(data);
         }
-        HoldingItem = pickupable;
         HoldItem(data,pickupable);
     }
     #endregion

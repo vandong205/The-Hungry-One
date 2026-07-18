@@ -17,13 +17,13 @@ public class GameDB : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
     }
-    [SerializeField] private GameDatabase gameDatabase;
+    public GameDatabase GameDatabase;
     public ObjectData GetObjectInfo(string id)
     {
-        return gameDatabase.ObjectDatabase.Get(id);
+        return GameDatabase.ObjectDatabase.Get(id);
     }
     public List<ObjectData> GetAllObjectInfo()
     {
-        return gameDatabase.ObjectDatabase.GetAll();
+        return GameDatabase.ObjectDatabase.GetAll();
     }
 }

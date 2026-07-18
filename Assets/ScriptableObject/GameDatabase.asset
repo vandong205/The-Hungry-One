@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: GameDatabase
   m_EditorClassIdentifier: Assembly-CSharp::GameDatabase
   ObjectDatabase: {fileID: 11400000, guid: ac31d45ddfe8ad74ebbd7e2dd0d14722, type: 2}
+  PizzaDatabase: {fileID: 11400000, guid: a914cf47f8530314b89b232f5abad5cf, type: 2}

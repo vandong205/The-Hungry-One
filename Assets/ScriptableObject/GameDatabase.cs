@@ -4,4 +4,5 @@ using UnityEngine;
 public class GameDatabase : ScriptableObject
 {
     public ObjectDatabase ObjectDatabase;
+    public PizzaDatabase PizzaDatabase;
 }

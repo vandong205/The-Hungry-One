@@ -15,6 +15,7 @@ public class DoughPressed : MonoBehaviour,IInteractableObject
     [SerializeField] List<ObjectData> acceptables=new();
     [SerializeField] List<IngredientID> acceptableIds=new();
     private ObjectSelfCloneDispencer selfCloneDispencer;
+    private List<IngredientID> ingredientIDs=new();
     void OnEnable()
     {
         if(gameObject.TryGetComponent(out ObjectSelfCloneDispencer objectSelfClone))
@@ -64,6 +65,11 @@ public class DoughPressed : MonoBehaviour,IInteractableObject
                 PepperoniTopping.SetActive(true);
                 break;
         }
+        Debug.Log("Bánh đang nhận nguyên liệu: "+ingredientID);
+        if(!ingredientIDs.Contains(ingredientID)) {
+            Debug.Log("Đã thêm nguyên liệu "+ingredientID+"vào list");
+            ingredientIDs.Add(ingredientID);
+        }
     }
     public void ClearIngredients()
     {
@@ -98,5 +104,10 @@ public class DoughPressed : MonoBehaviour,IInteractableObject
                 return;
             }
         }
+    }
+    public List<IngredientID> GetAllIngredient()
+    {
+        Debug.Log("Trả về "+ingredientIDs.Count+" nguyên liệu");
+        return ingredientIDs;
     }
 }

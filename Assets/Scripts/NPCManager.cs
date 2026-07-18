@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.MPE;
 using UnityEngine;
 using UnityEngine.Splines;
 [Serializable]
@@ -32,6 +30,8 @@ public class NPCManager : MonoBehaviour
     private bool hasTakeAwayCustumer = false;
     private int currentCustumerNumber=0;
     private int totalSeat = 0;
+    private List<NPCChar> npcPool = new();
+    private List<NPCChar> usedNpc = new();
     void Awake()
     {
         for (int i = 0; i < NPCprefabs.Count; i++)
@@ -42,8 +42,13 @@ public class NPCManager : MonoBehaviour
         {
             totalSeat=table.GetTotalSeatNumber();
         }
+        for (int i = 0; i < _npcLookUp.Count; i++)
+        {
+            npcPool.Add(_npcLookUp.ElementAt(i).Key);
+        }
     }
     private Dictionary<NPCChar,NPCController> NPCs=new();
+    private Dictionary<NPCController,TableSeat> UsedTable=new();
     public void SpawnNPC(NPCChar npcChar,Vector3 pos, Quaternion rot,NPCRole role)
     {
         GameObject npc = Instantiate(_npcLookUp[npcChar]);
@@ -69,7 +74,7 @@ public class NPCManager : MonoBehaviour
     public void SpawnCustumerNPC()
     {
         if(currentCustumerNumber>=totalSeat) return;
-        int randomChar = UnityEngine.Random.Range(0, _npcLookUp.Count);
+        int randomChar = UnityEngine.Random.Range(0, npcPool.Count);
         int randomPath = UnityEngine.Random.Range(0, goToShopPaths.Count);
 
         Debug.Log($"Spawn NPC: Character {randomChar + 1}, Path {randomPath + 1}");
@@ -77,12 +82,15 @@ public class NPCManager : MonoBehaviour
         Vector3 startLocal = goToShopPaths[randomPath].EvaluatePosition(0f);
         Vector3 startPosWorld = goToShopPaths[randomPath].transform.TransformPoint(startLocal);
 
-        SpawnNPC(_npcLookUp.ElementAt(randomChar).Key, startPosWorld, Quaternion.identity,NPCRole.Custumer);
+        SpawnNPC(npcPool[randomChar], startPosWorld, Quaternion.identity,NPCRole.Custumer);
         currentCustumerNumber++;
-        if (NPCs.TryGetValue(_npcLookUp.ElementAt(randomChar).Key, out NPCController controller))
+        if (NPCs.TryGetValue(npcPool[randomChar], out NPCController controller))
         {
             controller.MoveAlongPath(goToShopPaths[randomPath]);
         }
+        usedNpc.Add(npcPool[randomChar]);
+        npcPool.RemoveAt(randomChar);
+      
     }
     public void SpawnTakeAwayNPC()
     {
@@ -112,7 +120,11 @@ public class NPCManager : MonoBehaviour
             Debug.Log("No more available seat");
         }else
         {
+
             controller.Sit(availableSeat.transform);
+            availableSeat.OnSeatTaked();
+            availableSeat.dish.OnPizzaServe+=controller.Eat;
+            UsedTable.Add(controller,availableSeat);
             totalSeat--;
         }
        
@@ -139,6 +151,10 @@ public class NPCManager : MonoBehaviour
         if(_npcLookUp.ContainsKey(nPCChar))
         {
             _npcLookUp.Remove(nPCChar);
+        }
+        if (npcPool.Contains(nPCChar))
+        {
+            npcPool.Remove(nPCChar);
         }
     }
     public void SpawnNPCRoutine()

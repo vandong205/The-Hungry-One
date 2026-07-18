@@ -68,7 +68,10 @@ public class NPCController : MonoBehaviour,IInteractableObject
         transform.position = new Vector3(seatTranform.position.x,sitYpos,seatTranform.position.z);
         transform.rotation = seatTranform.rotation;
     }
-
+    public void Eat()
+    {
+        
+    }
     public void Interact(ObjectData sender)
     {
         GameEventHandler.RaiseEvent(gameEvent);
